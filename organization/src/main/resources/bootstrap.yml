@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: organization
+  profiles:
+    active:
+      default
+  cloud:
+    config:
+      uri: http://localhost:8888
+      #enabled: true

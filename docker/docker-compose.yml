@@ -1,0 +1,118 @@
+version: '2'
+services:
+  eurekaserver:
+    image: rdc/microservice/eureka:${BUILD_NAME}
+    ports:
+      - "8761:8761"
+
+  configserver:
+    image: rdc/microservice/confsvr:${BUILD_NAME}
+    ports:
+      - "8888:8888"
+    links:
+      - "eurekaserver:eurekaserver"
+    environment:
+      EUREKASERVER_URI: "http://eurekaserver:8761/eureka/"
+      ENCRYPT_KEY:       "IMSYMMETRIC"
+
+  zuulserver:
+    image: rdc/microservice/zuulsvr:${BUILD_NAME}
+    ports:
+      - "5555:5555"
+    links:
+      - "eurekaserver:eurekaserver"
+      - "configserver:configserver"
+    environment:
+      PROFILE: "default"
+      SERVER_PORT: "5555"
+      CONFIGSERVER_URI: "http://configserver:8888"
+      EUREKASERVER_URI: "http://eurekaserver:8761/eureka/"
+
+  licensingservice:
+    image: rdc/microservice/license:${BUILD_NAME}
+    ports:
+      - "8081:8081"
+    links:
+      - "configserver:configserver"
+      - "eurekaserver:eurekaserver"
+      - "zuulserver:zuulserver"
+      - "kafkaserver:kafkaserver"
+      - "authenticationservice:authenticationservice"
+    environment:
+      PROFILE: "aws-dev"
+      SERVER_PORT: "8081"
+      CONFIGSERVER_URI: "http://configserver:8888"
+      EUREKASERVER_URI: "http://eurekaserver:8761/eureka/"
+      KAFKASERVER_URI: "kafkaserver"
+      ZKSERVER_URI: "kafkaserver"
+      AUTHSERVER_URI:   "http://authenticationservice:8901/user"
+      ENCRYPT_KEY:       "IMSYMMETRIC"
+
+  authenticationservice:
+    image: rdc/microservice/authentication:${BUILD_NAME}
+    ports:
+      - "8084:8084"
+    links:
+      - "configserver:configserver"
+      - "eurekaserver:eurekaserver"
+      - "zuulserver:zuulserver"
+    environment:
+      PROFILE: "aws-dev"
+      SERVER_PORT: "8084"
+      CONFIGSERVER_URI: "http://configserver:8888"
+      EUREKASERVER_URI: "http://eurekaserver:8761/eureka/"
+      ENCRYPT_KEY:       "IMSYMMETRIC"
+
+  organizationservice:
+    image: rdc/microservice/organization:${BUILD_NAME}
+    ports:
+      - "8082:8082"
+    links:
+      - "configserver:configserver"
+      - "eurekaserver:eurekaserver"
+      - "zuulserver:zuulserver"
+      - "kafkaserver:kafkaserver"
+      - "authenticationservice:authenticationservice"
+    environment:
+      PROFILE: "aws-dev"
+      SERVER_PORT: "8082"
+      CONFIGSERVER_URI: "http://configserver:8888"
+      EUREKASERVER_URI: "http://eurekaserver:8761/eureka/"
+      KAFKASERVER_URI: "kafkaserver"
+      ZKSERVER_URI: "kafkaserver"
+      AUTHSERVER_URI: "http://authenticationservice:8901/user"
+      ENCRYPT_KEY: "IMSYMMETRIC"
+
+  organizationv2service:
+    image: rdc/microservice/organizationv2:${BUILD_NAME}
+    ports:
+      - "8083:8083"
+    links:
+      - "configserver:configserver"
+      - "eurekaserver:eurekaserver"
+      - "zuulserver:zuulserver"
+      - "kafkaserver:kafkaserver"
+      - "authenticationservice:authenticationservice"
+    environment:
+      PROFILE: "aws-dev"
+      SERVER_PORT: "8083"
+      CONFIGSERVER_URI: "http://configserver:8888"
+      EUREKASERVER_URI: "http://eurekaserver:8761/eureka/"
+      KAFKASERVER_URI: "kafkaserver"
+      ZKSERVER_URI: "kafkaserver"
+      AUTHSERVER_URI: "http://authenticationservice:8901/user"
+      ENCRYPT_KEY: "IMSYMMETRIC"
+
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+  kafkaserver:
+    build: wurstmeister/kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: 192.168.111.130
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock

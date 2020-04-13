@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: sproute
+  profiles:
+    active:
+      default
+  cloud:
+    config:
+      enabled: true

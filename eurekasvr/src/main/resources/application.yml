@@ -1,0 +1,9 @@
+server:
+  port: 8761
+eureka:
+  client:
+    #自己本身就是eureka服务，所以不需要再向eureka注册。且不需要缓存eureka注册表
+    registerWithEureka: false
+    fetchRegistry: false
+  server:
+    waitTimeInMsWhenSyncEmpty: 5

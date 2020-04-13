@@ -1,0 +1,14 @@
+server:
+  port: 8888
+spring:
+  profiles:
+      active: native
+  cloud:
+    config:
+      server:
+        native:
+          searchLocations: |
+            file:///C:/Users/Asce/Desktop/Java/microservice/confsvr/src/main/resources/config/license/
+            ,file:///C:/Users/Asce/Desktop/Java/microservice/confsvr/src/main/resources/config/organization/
+            ,file:///C:/Users/Asce/Desktop/Java/microservice/confsvr/src/main/resources/config/zuulsvr/
+            ,file:///C:/Users/Asce/Desktop/Java/microservice/confsvr/src/main/resources/config/authentication/

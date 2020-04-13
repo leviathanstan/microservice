@@ -1,0 +1,5 @@
+server.port: 5555
+
+zuul.prefix: /api
+zuul.routes.organization: /organ/**
+hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds: 2500
